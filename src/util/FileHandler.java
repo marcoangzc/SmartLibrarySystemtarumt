@@ -89,8 +89,6 @@ public class FileHandler {
                     system.registerUser(new Student(id, name, email, fine, data[5]));
                 } else if (type.equals("Faculty")) {
                     system.registerUser(new Faculty(id, name, email, fine, data[5]));
-                } else if (type.equals("PublicMember")) {
-                    system.registerUser(new PublicMember(id, name, email, fine, data[5], data[6]));
                 }
             }
         } catch (Exception e) {

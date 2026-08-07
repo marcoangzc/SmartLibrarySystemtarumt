@@ -11,7 +11,6 @@ import exception.*;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import java.util.ArrayList;
 /**
  *
  * @author marcoang
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 public class Main {
     private static LibrarySystem system = new LibrarySystem();
     private static Scanner scanner = new Scanner(System.in);
-    private static String currentUser = null; // Track current logged-in user
 
     public static void main(String[] args) {
         System.out.println("Starting System... Loading Data...");
@@ -28,7 +26,7 @@ public class Main {
         boolean running = true;
         while (running) {
             try {
-                displayMainMenu();
+                displayMenu();
                 int choice = scanner.nextInt();
                 scanner.nextLine(); // Consume the newline character
 
@@ -63,27 +61,6 @@ public class Main {
                     case 10: 
                         cancelRoomBooking();
                         break;
-                    case 11:
-                        searchCatalogMenu();
-                        break;
-                    case 12:
-                        viewEBooks();
-                        break;
-                    case 13:
-                        reserveBook();
-                        break;
-                    case 14:
-                        viewReservations();
-                        break;
-                    case 15:
-                        cancelReservation();
-                        break;
-                    case 16:
-                        payFine();
-                        break;
-                    case 17:
-                        removeDamagedItem();
-                        break;
                     case 0:
                         System.out.println("Saving data to files...");
                         FileHandler.saveAllData(system); // Save to TXT files on exit
@@ -91,7 +68,7 @@ public class Main {
                         running = false;
                         break;
                     default:
-                        System.out.println("Invalid option. Please enter a number between 0 and 17.");
+                        System.out.println("Invalid option. Please enter a number between 0 and 8.");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Error: Invalid input! Please enter a valid number.");
@@ -103,48 +80,27 @@ public class Main {
         scanner.close();
     }
 
-    private static void displayMainMenu() {
+    private static void displayMenu() {
         System.out.println("\n==========================================");
         System.out.println("  TAR UMT SMART LIBRARY MANAGEMENT SYSTEM ");
         System.out.println("==========================================");
-        System.out.println("           MAIN MENU");
-        System.out.println("------------------------------------------");
-        System.out.println("ADMINISTRATIVE FUNCTIONS:");
-        System.out.println(" 1. Register New User (Student/Faculty/Public)");
-        System.out.println(" 2. Add New Library Item");
-        System.out.println(" 3. View All Users");
-        System.out.println(" 4. View All Items");
-        System.out.println(" 8. View Active Transactions");
-        System.out.println("17. Remove Damaged Item (Librarian)");
-        System.out.println("------------------------------------------");
-        System.out.println("BORROWING & RETURNS:");
-        System.out.println(" 5. Borrow an Item");
-        System.out.println(" 6. Return an Item");
-        System.out.println("------------------------------------------");
-        System.out.println("SEARCH & DISCOVERY:");
-        System.out.println("11. Search Catalog (By Genre/Author)");
-        System.out.println("12. View E-Books (Digital Resources)");
-        System.out.println("------------------------------------------");
-        System.out.println("RESERVATIONS:");
-        System.out.println("13. Reserve a Book");
-        System.out.println("14. View My Reservations");
-        System.out.println("15. Cancel Reservation");
-        System.out.println("------------------------------------------");
-        System.out.println("STUDY ROOMS:");
-        System.out.println(" 7. View Study Rooms");
-        System.out.println(" 9. Book a Study Room");
+        System.out.println("1. Register New User");
+        System.out.println("2. Add New Library Item");
+        System.out.println("3. View All Users");
+        System.out.println("4. View All Items");
+        System.out.println("5. Borrow an Item");
+        System.out.println("6. Return an Item");
+        System.out.println("7. View Study Rooms"); 
+        System.out.println("8. View Active Transactions");
+        System.out.println("9. Book a Study Room"); 
         System.out.println("10. Cancel Room Booking");
-        System.out.println("------------------------------------------");
-        System.out.println("FINES & PAYMENTS:");
-        System.out.println("16. Pay Fine");
-        System.out.println("------------------------------------------");
-        System.out.println(" 0. Save and Exit");
+        System.out.println("0. Save and Exit");
         System.out.print("Enter your choice: ");
     }
 
     private static void addUser() {
         System.out.println("\n--- Register User ---");
-        System.out.print("Enter Type (1 for Student, 2 for Faculty, 3 for Public Member): ");
+        System.out.print("Enter Type (1 for Student, 2 for Faculty): ");
         int type = scanner.nextInt();
         scanner.nextLine(); 
 
@@ -165,13 +121,6 @@ public class Main {
             String dept = scanner.nextLine();
             system.registerUser(new Faculty(id, name, email, 0.0, dept));
             System.out.println("Faculty registered successfully!");
-        } else if (type == 3) {
-            System.out.print("Enter Membership Type (Regular/Premium): ");
-            String membershipType = scanner.nextLine();
-            System.out.print("Enter Address: ");
-            String address = scanner.nextLine();
-            system.registerUser(new PublicMember(id, name, email, 0.0, membershipType, address));
-            System.out.println("Public Member registered successfully!");
         } else {
             System.out.println("Invalid user type.");
         }
@@ -311,130 +260,6 @@ public class Main {
             System.out.println("Success! Room " + roomNumber + " is now Available.");
         } catch (EntityNotFoundException | InvalidOperationException e) {
             System.out.println(">> CANCELLATION FAILED: " + e.getMessage());
-        }
-    }
-    
-    // ==================== NEW FEATURE METHODS ====================
-    
-    private static void searchCatalogMenu() {
-        System.out.println("\n--- Search Catalog ---");
-        System.out.println("1. Search by Genre");
-        System.out.println("2. Search by Author");
-        System.out.print("Enter choice: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
-        
-        if (choice == 1) {
-            System.out.print("Enter Genre: ");
-            String genre = scanner.nextLine();
-            ArrayList<Book> books = system.searchBooksByGenre(genre);
-            if (books.isEmpty()) {
-                System.out.println("No books found in genre: " + genre);
-            } else {
-                System.out.println("\nFound " + books.size() + " book(s):");
-                for (Book book : books) {
-                    System.out.println(book.toString() + " | Status: " + (book.isAvailable() ? "Available" : "On Loan"));
-                }
-            }
-        } else if (choice == 2) {
-            System.out.print("Enter Author Name: ");
-            String author = scanner.nextLine();
-            ArrayList<Book> books = system.searchBooksByAuthor(author);
-            if (books.isEmpty()) {
-                System.out.println("No books found by author: " + author);
-            } else {
-                System.out.println("\nFound " + books.size() + " book(s):");
-                for (Book book : books) {
-                    System.out.println(book.toString() + " | Status: " + (book.isAvailable() ? "Available" : "On Loan"));
-                }
-            }
-        } else {
-            System.out.println("Invalid choice.");
-        }
-    }
-    
-    private static void viewEBooks() {
-        System.out.println("\n--- E-Books (Digital Resources) ---");
-        ArrayList<DigitalResource> eResources = system.viewEBooks();
-        if (eResources.isEmpty()) {
-            System.out.println("No digital resources available.");
-        } else {
-            for (DigitalResource resource : eResources) {
-                System.out.println(resource.toString() + " | Status: " + (resource.isAvailable() ? "Available" : "In Use"));
-            }
-        }
-    }
-    
-    private static void reserveBook() {
-        System.out.println("\n--- Reserve a Book ---");
-        System.out.print("Enter User ID: ");
-        String userId = scanner.nextLine();
-        System.out.print("Enter Book ID: ");
-        String bookId = scanner.nextLine();
-        
-        try {
-            system.reserveBook(userId, bookId);
-        } catch (EntityNotFoundException | ItemNotAvailableException | ReservationException e) {
-            System.out.println(">> RESERVATION FAILED: " + e.getMessage());
-        }
-    }
-    
-    private static void viewReservations() {
-        System.out.println("\n--- View My Reservations ---");
-        System.out.print("Enter User ID: ");
-        String userId = scanner.nextLine();
-        
-        try {
-            ArrayList<Reservation> reservations = system.getUserReservations(userId);
-            if (reservations.isEmpty()) {
-                System.out.println("No active reservations found.");
-            } else {
-                System.out.println("\nYour Active Reservations:");
-                for (Reservation res : reservations) {
-                    System.out.println(res.toString());
-                }
-            }
-        } catch (EntityNotFoundException e) {
-            System.out.println(">> ERROR: " + e.getMessage());
-        }
-    }
-    
-    private static void cancelReservation() {
-        System.out.println("\n--- Cancel Reservation ---");
-        System.out.print("Enter Reservation ID: ");
-        String reservationId = scanner.nextLine();
-        
-        try {
-            system.cancelReservation(reservationId);
-        } catch (EntityNotFoundException | InvalidOperationException e) {
-            System.out.println(">> CANCELLATION FAILED: " + e.getMessage());
-        }
-    }
-    
-    private static void payFine() {
-        System.out.println("\n--- Pay Fine ---");
-        System.out.print("Enter User ID: ");
-        String userId = scanner.nextLine();
-        System.out.print("Enter Payment Amount (RM): ");
-        double amount = scanner.nextDouble();
-        scanner.nextLine();
-        
-        try {
-            system.payFine(userId, amount);
-        } catch (EntityNotFoundException | InvalidOperationException e) {
-            System.out.println(">> PAYMENT FAILED: " + e.getMessage());
-        }
-    }
-    
-    private static void removeDamagedItem() {
-        System.out.println("\n--- Remove Damaged Item (Librarian Only) ---");
-        System.out.print("Enter Item ID to remove: ");
-        String itemId = scanner.nextLine();
-        
-        try {
-            system.removeDamagedItem(itemId);
-        } catch (EntityNotFoundException | InvalidOperationException e) {
-            System.out.println(">> REMOVAL FAILED: " + e.getMessage());
         }
     }
 }
