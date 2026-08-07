@@ -1,2 +1,0 @@
-Book,B001,The Great Gatsby,false,F. Scott Fitzgerald,978-0743273565,Fiction
-DigitalResource,E001,Introduction to Java,false,PDF,5.5
